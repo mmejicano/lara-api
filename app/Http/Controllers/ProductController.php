@@ -36,12 +36,18 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
-        $product = new Product;
-        $product->name = $request->name;
+        // $product = new Product;
+        // $product->name = $request->name;
+        // $product->detail = $request->description; // no coincide
+        // $product->price = $request->price;
+        // $product->discount = $request->discount;
+        // $product->stock = $request->stock;
+        // return response(['data' => $request->validated()]); // requiere campos igual que input
+
+        // requiere $fillable en Model
+        $product = new Product($request->validated());
         $product->detail = $request->description;
-        $product->price = $request->price;
-        $product->discount = $request->discount;
-        $product->stock = $request->stock;
+        // unset($product['description']);
 
         $product->save();
         return response([
@@ -71,7 +77,12 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, Product $product)
     {
-        //
+        $request['detail'] = $request->description;
+        unset($request['description']);
+        $product->update($request->all());
+        return response([
+            'data' => new ProductResource($product)
+        ], Response::HTTP_CREATED);
     }
 
     /**
